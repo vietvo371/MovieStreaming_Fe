@@ -2,6 +2,10 @@ import { createRouter, createWebHistory } from "vue-router"; // cài vue-router:
 import checkLoginUser from "./checkLoginAnime";
 import checkloginAdmin from "./checkLoginAdmin";
 import checkUserTerm from "./checkUserTerm";
+import ThongKeChung from "../components/Admin/ThongKe/ThongKeChung.vue"
+import ThongKeLuotXem from "../components/Admin/ThongKe/LuotXem/index.vue"
+import ThongKeBinhLuan from "../components/Admin/ThongKe/BinhLuan/index.vue"
+import ThongKeYeuThich from "../components/Admin/ThongKe/YeuThich/index.vue"
 const routes = [
   {
     path: "/home",
@@ -92,6 +96,7 @@ const routes = [
       {
         path: "profile",
         component: () => import("../components/Page/PageProfile/index.vue"),
+        beforeEnter: checkloginAdmin,
       },
       //Page Blog
       {
@@ -101,6 +106,12 @@ const routes = [
       {
         path: "blog/:slug",
         component: () => import("../components/Page/BlogDelist/index.vue"),
+      },
+      {
+        path: "lich-su-xem",
+        name: "LichSuXem", 
+        component: () => import("../components/User/LichSuXem/index.vue"),
+        beforeEnter: checkLoginUser,
       },
     ],
   },
@@ -205,6 +216,26 @@ const routes = [
         path: "quan-li-thanh-toan",
         component: () => import("../components/Admin/ThanhToan/index.vue"),
       },
+      {
+        path: 'thong-ke',
+        name: 'AdminThongKe',
+        component: ThongKeChung
+      },
+      {
+        path: 'thong-ke/luot-xem',
+        name: 'ThongKeLuotXem',
+        component: ThongKeLuotXem
+      },
+      {
+        path: 'thong-ke/binh-luan',
+        name: 'ThongKeBinhLuan',
+        component: ThongKeBinhLuan
+      },
+      {
+        path: 'thong-ke/yeu-thich',
+        name: 'ThongKeYeuThich',
+        component: ThongKeYeuThich
+      }
     ],
   },
   //login admin
