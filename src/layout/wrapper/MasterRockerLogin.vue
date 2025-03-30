@@ -1,26 +1,43 @@
 <template>
-    <body class="bg-login" >
-        <div class="wrapper">
-            <div class="section-authentication-signin d-flex align-items-center justify-content-center">
-                <div class="container-fluid">
-                    <RouterView></RouterView>
-                </div>
-            </div>
-        </div>
-    </body>
+  <body class="bg-login">
+      <div class="wrapper">
+          <div class="section-authentication-signin d-flex align-items-center justify-content-center my-5 my-lg-0">
+              <div class="container-fluid">
+                  <RouterView></RouterView>
+              </div>
+          </div>
+      </div>
+  </body>
 </template>
 <script>
-import '../../assets/assets_Rocker/js/bootstrap.bundle.min.js';
-import '../../assets/assets_Rocker/js/jquery.min.js';
-import '../../assets/assets_Rocker/plugins/simplebar/js/simplebar.min.js';
-import '../../assets/assets_Rocker/plugins/metismenu/js/metisMenu.min.js';
-import '../../assets/assets_Rocker/plugins/perfect-scrollbar/js/perfect-scrollbar.js';
-import '../../assets/assets_Rocker/js/index.js';
-import '../../assets/assets_Rocker/js/app.js';
 export default {
-    name: 'app',
-    components: {
-    },
+  name: 'app',
+  components: {
+  },
+  created() {
+      this.loadScripts();
+  },
+  methods: {
+      loadScripts() {
+          const scripts = [
+              'https://code.jquery.com/jquery-3.3.1.min.js',
+              '/assets/assets_Rocker/js/bootstrap.bundle.min.js',
+              '/assets/assets_Rocker/js/jquery.min.js',
+              '/assets/assets_Rocker/plugins/simplebar/js/simplebar.min.js',
+              '/assets/assets_Rocker/plugins/metismenu/js/metisMenu.min.js',
+              '/assets/assets_Rocker/plugins/perfect-scrollbar/js/perfect-scrollbar.js',
+              '/assets/assets_Rocker/js/index.js',
+              '/assets/assets_Rocker/js/app.js'
+          ];
+          
+          scripts.forEach(src => {
+              const script = document.createElement('script');
+              script.src = src;
+              script.async = true;
+              document.head.appendChild(script);
+          });
+      }
+  }
 }
 </script>
 <style>
@@ -35,20 +52,4 @@ export default {
 @import '../../assets/assets_Rocker/css/header-colors.css';
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css");
-
-.wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-}
-
-.section-authentication-signin {
-  width: 100%;
-}
-
-.container-fluid {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-}
 </style>

@@ -13,7 +13,7 @@
             <div class="toggle-icon ms-auto"><i class="bx bx-arrow-to-left"></i></div>
         </div>
         <!--navigation-->
-        <ul class="metismenu" id="menu">
+        <ul class="metismenu" id="menu" style="overflow-y: auto; height: 100%;">
             <li>
                 <router-link to="/admin">
                     <div class="parent-icon"><i class="bx bx-home-circle"></i></div>

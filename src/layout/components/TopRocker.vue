@@ -58,13 +58,17 @@
 import { mapState } from 'vuex';
 import baseRequest from '../../core/baseRequest';
 import { createToaster } from "@meforma/vue-toaster";
+import * as bootstrap from 'bootstrap';
+
 const toaster = createToaster({ position: "top-right" });
+
 export default {
 
     data() {
         return {
             user: 'chưa dang nhap',
             img_admin: 'https://www.vecteezy.com/free-vector/default-user',
+            dropdownInstance: null
         }
     },
     computed: {
@@ -75,6 +79,20 @@ export default {
     mounted() {
         this.user = localStorage.getItem('name_admin');
         this.img_admin = localStorage.getItem('avt_admin');
+        
+        // Khởi tạo dropdown
+        this.$nextTick(() => {
+            const dropdownEl = document.getElementById('userDropdown');
+            if (dropdownEl) {
+                this.dropdownInstance = new bootstrap.Dropdown(dropdownEl);
+            }
+        });
+    },
+    beforeDestroy() {
+        // Cleanup dropdown khi component bị hủy
+        if (this.dropdownInstance) {
+            this.dropdownInstance.dispose();
+        }
     },
     methods: {
         logout() {
