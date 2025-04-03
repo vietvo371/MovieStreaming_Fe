@@ -487,12 +487,12 @@ export default {
                         this.$router.push('/login'); // Ẩn loader nếu có listring
                     }
                     else if (res.data.status === 2) {
-                        $("#modalBuyVip").modal("show");
+                        this.$router.push('/goi-vip');
                         this.$store.dispatch('showWarning', { description: res.data.message, });
 
                     }
                     else {
-                        $("#modalBuyVip").modal("show");
+                        this.$router.push('/goi-vip');
                         this.$store.dispatch('showWarning', { description: res.data.message, });
                     }
 
