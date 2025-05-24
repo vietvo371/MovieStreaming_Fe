@@ -397,7 +397,8 @@ export default {
           },
           body: JSON.stringify({
             reset_history: true,
-            reset_preferences: true
+            reset_preferences: true,
+            se
           }),
         });
         console.log("Đã đặt lại dữ liệu người dùng trên server");
@@ -952,7 +953,9 @@ export default {
               reset_genres: true,
               reset_film_types: true,
               reset_interactions: true,
-              reset_history: true
+              reset_history: true,
+              session_id: this.sessionId,
+              user_id: this.userId
             })
           });
           
