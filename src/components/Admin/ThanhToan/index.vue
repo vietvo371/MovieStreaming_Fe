@@ -42,14 +42,14 @@
                             </div>
 
                             <!-- Loại gói -->
-                            <div class="col-md-2">
+                            <!-- <div class="col-md-2">
                                 <select class="form-select" v-model="filters.id_goi" @change="handleFilter">
                                     <option value="">Tất cả gói</option>
                                     <option v-for="goi in listGoi" :key="goi.id" :value="goi.id">
                                         {{ goi.ten_goi }}
                                     </option>
                                 </select>
-                            </div>
+                            </div> -->
 
                             <!-- Thời gian -->
                             <div class="col-md-2">
@@ -66,6 +66,18 @@
                             <div class="col-auto">
                                 <button class="btn btn-secondary" @click="resetFilters">
                                     <i class="fas fa-redo-alt me-1"></i> Đặt lại
+                                </button>
+                            </div>
+                            
+                            <!-- Export Excel -->
+                            <div class="col-auto">
+                                <button class="btn btn-success" @click="exportExcel" :disabled="isExporting">
+                                    <i class="fas fa-file-excel me-1"></i> 
+                                    <span v-if="!isExporting">Xuất Excel</span>
+                                    <span v-else>
+                                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Đang xuất...
+                                    </span>
                                 </button>
                             </div>
                         </div>
@@ -289,6 +301,7 @@ export default {
             },
             searchTimeout: null,
             listGoi: [],
+            isExporting: false,
         };
     },
     computed: {
@@ -456,6 +469,57 @@ export default {
             };
             this.loadData({}, 1);
         },
+        async exportExcel() {
+    try {
+        // Chuẩn bị parameters từ filters hiện tại
+        let params = new URLSearchParams();
+        
+        if (this.filters.search) params.append('search', this.filters.search);
+        if (this.filters.loai_thanh_toan) params.append('loai_thanh_toan', this.filters.loai_thanh_toan);
+        if (this.filters.tinh_trang !== undefined) params.append('tinh_trang', this.filters.tinh_trang);
+        if (this.filters.id_goi) params.append('id_goi', this.filters.id_goi);
+
+        // Xử lý thời gian theo filter
+        if (this.filters.time_range) {
+            const today = new Date();
+            switch (this.filters.time_range) {
+                case 'today':
+                    params.append('date_from', today.toISOString().split('T')[0]);
+                    params.append('date_to', today.toISOString().split('T')[0]);
+                    break;
+                case 'week':
+                    const firstDayOfWeek = new Date(today);
+                    firstDayOfWeek.setDate(today.getDate() - today.getDay());
+                    params.append('date_from', firstDayOfWeek.toISOString().split('T')[0]);
+                    params.append('date_to', today.toISOString().split('T')[0]);
+                    break;
+                case 'month':
+                    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                    params.append('date_from', firstDayOfMonth.toISOString().split('T')[0]);
+                    params.append('date_to', today.toISOString().split('T')[0]);
+                    break;
+                case 'custom':
+                    if (this.filters.date_from && this.filters.date_to) {
+                        params.append('date_from', this.filters.date_from);
+                        params.append('date_to', this.filters.date_to);
+                    }
+                    break;
+            }
+        }
+
+        // Tạo link và tải file
+        const link = document.createElement('a');
+        link.href = `http://localhost:8000/api/admin/hoa-don/in-excel?${params.toString()}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toaster.success('Đang tải xuống file Excel...');
+    } catch (error) {
+        console.error('Error exporting to Excel:', error);
+        toaster.error('Có lỗi xảy ra khi xuất Excel. Vui lòng thử lại!');
+    }
+},
     },
 };
 </script>
