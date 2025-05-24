@@ -1,129 +1,46 @@
 <template>
-    <div class="row">
-        <!-- Card Danh Sách Chức Vụ -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Danh Sách Chức Vụ</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="table-light">
-                                <tr class="text-center">
-                                    <th style="width: 60px">#</th>
-                                    <th>Tên Chức Vụ</th>
-                                    <th style="width: 120px">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(v, k) in listChucVu" 
-                                    :key="k" 
-                                    :class="{'table-active': chucVu.id === v.id}"
-                                    class="align-middle">
-                                    <td class="text-center">{{ k + 1 }}</td>
-                                    <td>{{ v.ten_chuc_vu }}</td>
-                                    <td class="text-center">
-                                        <button v-on:click="selectChucVu(v)" 
-                                                class="btn btn-info btn-sm text-white">
-                                            <i class='bx bx-key me-1'></i> Phân Quyền
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr v-if="listChucVu.length === 0">
-                                    <td colspan="3" class="text-center">Không có dữ liệu</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="col-3">
+                <select class="form-select" v-model="selectedRole">
+                    <option value="" disabled selected>Chọn chức vụ</option>
+                    <option v-for="role in listChucVu" :key="role.id" :value="role">
+                        {{ role.ten_chuc_vu }}
+                    </option>
+                </select>
             </div>
+            <button class="btn btn-primary" @click="savePermissions">Lưu phân quyền</button>
         </div>
 
-        <!-- Card Danh Sách Chức Năng -->
-        <div class="col-lg-5">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Danh Sách Chức Năng</h5>
-                    <span v-if="!chucVu.id" class="text-muted">
-                        <i class='bx bx-info-circle'></i> Vui lòng chọn chức vụ
-                    </span>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="table-light">
-                                <tr class="text-center">
-                                    <th style="width: 60px">#</th>
-                                    <th>Tên Chức Năng</th>
-                                    <th style="width: 120px">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(v, k) in availableChucNang" 
-                                    :key="k" 
-                                    class="align-middle">
-                                    <td class="text-center">{{ k + 1 }}</td>
-                                    <td>{{ v.ten_chuc_nang }}</td>
-                                    <td class="text-center">
-                                        <button v-on:click="createPhanQuyen(v.id)" 
-                                                class="btn btn-primary btn-sm"
-                                                :disabled="!chucVu.id">
-                                            <i class='bx bx-plus-circle me-1'></i> Cấp Quyền
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr v-if="listChucNang.length === 0">
-                                    <td colspan="3" class="text-center">Không có dữ liệu</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="card-body">
+            <h5 class="mb-3">Phân quyền cho:  <span class="text-danger">{{ selectedRole?.ten_chuc_vu || 'Chưa chọn quyền' }}</span></h5>
+            
+            <div class="mb-3">
+                <input type="text" 
+                       class="form-control" 
+                       v-model="searchQuery"
+                       placeholder="Tìm kiếm chức năng...">
             </div>
-        </div>
 
-        <!-- Card Quyền Đã Cấp -->
-        <div class="col-lg-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        Quyền Đã Cấp
-                        <small class="d-block text-danger mt-1">
-                            {{ chucVu.ten_chuc_vu || 'Chưa chọn chức vụ' }}
-                        </small>
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="table-light">
-                                <tr class="text-center">
-                                    <th style="width: 60px">#</th>
-                                    <th>Tên Quyền</th>
-                                    <th style="width: 80px">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(v, k) in phan_quyen" 
-                                    :key="k" 
-                                    class="align-middle">
-                                    <td class="text-center">{{ k + 1 }}</td>
-                                    <td>{{ v.ten_chuc_nang }}</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-danger btn-sm" 
-                                                v-on:click="xoaPhanQuyen(v)">
-                                            <i class='bx bx-trash'></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr v-if="phan_quyen.length === 0">
-                                    <td colspan="3" class="text-center">
-                                        {{ chucVu.id ? 'Chưa có quyền nào được cấp' : 'Vui lòng chọn chức vụ' }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-link me-2" @click="selectAll">Chọn tất cả</button>
+                <button class="btn btn-link" @click="deselectAll">Bỏ chọn tất cả</button>
+            </div>
+
+            <div class="row g-3">
+                <div v-for="feature in filteredFeatures" 
+                     :key="feature.id" 
+                     class="col-lg-4">
+                    <div class="form-check">
+                        <input class="form-check-input" 
+                               type="checkbox"
+                               v-model="selectedPermissions"
+                               :value="feature.id"
+                               :id="`feature-${feature.id}`">
+                        <label class="form-check-label" :for="`feature-${feature.id}`">
+                            {{ feature.ten_chuc_nang }}
+                            <small class="text-muted">ID: {{ feature.id }}</small>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -142,21 +59,32 @@ export default {
         return {
             listChucNang: [],
             listChucVu: [],
-            chucVu: {},
-            phan_quyen: [],
+            selectedRole: null,
+            searchQuery: '',
+            selectedPermissions: [],
         }
     },
     computed: {
-        // Lọc ra các chức năng chưa được cấp quyền
-        availableChucNang() {
-            if (!this.chucVu.id) return this.listChucNang;
-            return this.listChucNang.filter(cn => 
-                !this.phan_quyen.some(pq => pq.id_chuc_nang === cn.id)
+        filteredFeatures() {
+            if (!this.searchQuery) return this.listChucNang;
+            const query = this.searchQuery.toLowerCase();
+            return this.listChucNang.filter(feature => 
+                feature.ten_chuc_nang.toLowerCase().includes(query)
             );
         }
     },
     mounted() {
         this.getData();
+    },
+    watch: {
+        selectedRole: {
+            handler(newRole) {
+                if (newRole) {
+                    this.getPermissionsForRole(newRole.id);
+                }
+            },
+            immediate: true
+        }
     },
     methods: {
         getData() {
@@ -170,27 +98,39 @@ export default {
                 });
         },
 
-        selectChucVu(chucVu) {
-            this.chucVu = chucVu;
-            this.getChucNang();
+        getPermissionsForRole(roleId) {
+            baseRequest.post('admin/phan-quyen/get-chuc-nang', { id: roleId })
+                .then((res) => {
+                    this.selectedPermissions = res.data.data.map(p => p.id_chuc_nang);
+                })
+                .catch((error) => {
+                    toaster.error('Không thể tải quyền hiện tại');
+                });
         },
 
-        createPhanQuyen(id) {
-            if (!this.chucVu.id) {
-                toaster.error('Vui lòng chọn chức vụ trước');
+        selectAll() {
+            this.selectedPermissions = this.listChucNang.map(f => f.id);
+        },
+
+        deselectAll() {
+            this.selectedPermissions = [];
+        },
+
+        savePermissions() {
+            if (!this.selectedRole) {
+                toaster.error('Vui lòng chọn chức vụ');
                 return;
             }
 
             const payload = {
-                'id_chuc_nang': id,
-                'id_chuc_vu': this.chucVu.id,
+                id_chuc_vu: this.selectedRole.id,
+                danh_sach_quyen: this.selectedPermissions,
             };
 
-            baseRequest.post('admin/phan-quyen/create', payload)
+            baseRequest.post('admin/phan-quyen/save', payload)
                 .then((res) => {
                     if (res.data.status) {
-                        toaster.success(res.data.message);
-                        this.getChucNang();
+                        toaster.success('Lưu phân quyền thành công');
                     } else {
                         toaster.error(res.data.message);
                     }
@@ -198,61 +138,36 @@ export default {
                 .catch((error) => {
                     const message = error.response?.data?.errors 
                         ? Object.values(error.response.data.errors)[0]
-                        : 'Có lỗi xảy ra';
+                        : 'Có lỗi xảy ra khi lưu phân quyền';
                     toaster.error(message);
                 });
-        },
-
-        getChucNang() {
-            if (!this.chucVu.id) return;
-
-            baseRequest.post('admin/phan-quyen/get-chuc-nang', this.chucVu)
-                .then((res) => {
-                    this.phan_quyen = res.data.data;
-                })
-                .catch((error) => {
-                    const message = error.response?.data?.errors 
-                        ? Object.values(error.response.data.errors)[0]
-                        : 'Có lỗi xảy ra';
-                    toaster.error(message);
-                });
-        },
-
-        xoaPhanQuyen(value) {
-            baseRequest.delete('admin/phan-quyen/xoa-phan-quyen/' + value.id)
-                .then((res) => {
-                    if (res.data.status) {
-                        toaster.success(res.data.message);
-                        this.getChucNang();
-                    } else {
-                        toaster.error(res.data.message);
-                    }
-                })
-                .catch((error) => {
-                    const message = error.response?.data?.errors 
-                        ? Object.values(error.response.data.errors)[0]
-                        : 'Có lỗi xảy ra';
-                    toaster.error(message);
-                });
-        },
+        }
     },
 }
 </script>
 
 <style scoped>
-.table-active {
-    background-color: rgba(0,123,255,0.1) !important;
-}
-
 .card {
     margin-bottom: 1rem;
 }
 
-.btn-sm {
-    padding: 0.25rem 0.5rem;
+.form-check {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
 }
 
-.table td, .table th {
-    padding: 0.75rem;
+.form-check:hover {
+    background-color: rgba(0,123,255,0.1);
+}
+
+.form-check-label {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-check-label small {
+    font-size: 0.75rem;
 }
 </style>
