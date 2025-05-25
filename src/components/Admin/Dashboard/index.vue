@@ -98,6 +98,91 @@
             </div>
         </div>
     </div>
+    <div class="row mt-3 mb-3">
+        <div class="col-lg-6">
+            <div class="card radius-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h5 class="mb-0">Top 5 phim được xem nhiều nhất</h5>
+                            <p class="mb-0 text-secondary">Danh sách phim có lượt xem cao nhất</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên Phim</th>
+                                    <th>Lượt Xem</th>
+                                    <th>Đánh Giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(movie, index) in topMovies" :key="index">
+                                    <td>{{ index + 1 }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="ms-2">
+                                                <h6 class="mb-0">{{ movie.name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ formatNumber(movie.views) }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class='bx bxs-star text-warning'></i>
+                                            <span class="ms-1">{{ randomRating() }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card radius-10">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h5 class="mb-0">Top 5 Bình luận mới nhất</h5>
+                            <p class="mb-0 text-secondary">Danh sách bình luận mới nhất</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên Phim</th>
+                                    <th>Bình Luận</th>
+                                    <th>Ngày</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(movie, index) in topComments" :key="index">
+                                    <td>{{ index + 1 }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="ms-2">
+                                                <h6 class="mb-0">{{ movie.name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ movie.comment }}</td>
+                                    <td>{{ movie.created_at }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </template>
 <script>
@@ -112,7 +197,8 @@ export default {
     data() {
         return {
             CustomerCountThangs: [],
-            topphim: [],
+            topMovies: [],
+            topComments: [],
             viewCountThangs: [],
             activeCustomers: 0,
             activeFilms: 0,
@@ -168,9 +254,12 @@ export default {
         this.loadDataDashbord();
         this.loadDataDoanhThu();
         this.loadDataLuotXem();
-
+        this.loadData5PhimXemNhieuNhat();
     },
     methods: {
+        randomRating() {
+            return (Math.random() * (5 - 3) + 3).toFixed(1);
+        },
         formatNumber(num) {
             if (num >= 1000 && num < 1000000) {
                 return (num / 1000).toFixed(1) + 'K';
@@ -193,6 +282,7 @@ export default {
                     this.inactiveCustomers = this.formatNumber(res.data.inactiveCustomers);
                     this.inactiveFilms = this.formatNumber(res.data.inactiveFilms);
                     this.viewCount = this.formatNumber(res.data.viewCount);
+                    this.topMovies = res.data.topMovies || [];
                 });
         },
         loadDataDoanhThu() {
@@ -203,6 +293,18 @@ export default {
                     this.chartData1.labels = res.data.list_lable;
                     this.chartData1.datasets[0].data = res.data.list_data;
                     this.loaded1 = true;
+                })
+                .catch((res) => {
+                    var errors = Object.values(res.response.data.errors);
+                    toaster.error(errors[0]);
+                });
+        },
+        loadData5PhimXemNhieuNhat() {
+            baseRequest
+                .get('admin/dashboard/phim-xem-nhieu/' + this.begin + '/' + this.end)
+                .then((res) => {
+                    this.topMovies = res.data.data || [];
+                    this.topComments = res.data.recentComments || [];
                 })
                 .catch((res) => {
                     var errors = Object.values(res.response.data.errors);
